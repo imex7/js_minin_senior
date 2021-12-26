@@ -1,31 +1,31 @@
-const path = require('path')
-const {CleanWebpackPlugin} = require('clean-webpack-plugin')
-const hwp = require('html-webpack-plugin')
-const cwp = require('copy-webpack-plugin')
-const mcep = require('mini-css-extract-plugin')
+const path = require('path');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const hwp = require('html-webpack-plugin');
+const cwp = require('copy-webpack-plugin');
+const mcep = require('mini-css-extract-plugin');
 
-const isDev = process.env.NODE_ENV === 'development'
-const isProd = !isDev
+const isDev = process.env.NODE_ENV === 'development';
+const isProd = !isDev;
 console.log('Production = ', isProd);
 
 const filename = (ext) => {
-  return isDev ? `bundle.${ext}` : `bundle.[hash].${ext}`
-}
+  return isDev ? `bundle.${ext}` : `bundle.[fullhash].${ext}`;
+};
 
 const jsLoaders = () => {
   const loaders = [
     {
       loader: 'babel-loader',
       options: {
-        presets: ['@babel/preset-env']
-      }
-    }
-  ]
+        presets: ['@babel/preset-env'],
+      },
+    },
+  ];
   if (isDev) {
-    loaders.push('eslint-loader')
+    loaders.push('eslint-loader');
   }
-  return loaders
-}
+  return loaders;
+};
 
 module.exports = {
   context: path.resolve(__dirname, 'src'),
@@ -34,19 +34,19 @@ module.exports = {
   },
   output: {
     filename: filename('js'),
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
   },
   resolve: {
     extensions: ['.js'],
     alias: {
       '*': path.resolve(__dirname, 'src'),
-      '*core': path.resolve(__dirname, 'src/core')
+      '*core': path.resolve(__dirname, 'src/core'),
     },
   },
   devtool: isDev ? 'source-map' : false,
   devServer: {
     port: 20000,
-    hot: isDev
+    hot: isDev,
   },
   plugins: [
     new CleanWebpackPlugin(),
@@ -56,23 +56,21 @@ module.exports = {
       minify: {
         removeComments: isProd,
         collapseWhitespace: isProd,
-      }
+      },
     }),
     new cwp({
-      patterns: [
-        {from: 'favicon.ico', to: ''}
-      ],
+      patterns: [{from: 'favicon.ico', to: ''}],
     }),
     new mcep({
-      filename: filename('css')
-    })
+      filename: filename('css'),
+    }),
   ],
   module: {
     rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: jsLoaders()
+        use: jsLoaders(),
       },
       {
         test: /\.s[ac]ss$/i,
@@ -80,12 +78,13 @@ module.exports = {
           {
             loader: mcep.loader,
             options: {
-              hmr: isDev,
-              reloadAll: true
-            }
+              esModule: true,
+            },
           },
-          'css-loader', 'sass-loader'],
+          'css-loader',
+          'sass-loader',
+        ],
       },
     ],
   },
-}
+};
